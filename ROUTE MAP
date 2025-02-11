@@ -1,0 +1,32 @@
+
+ROUTE MAP
+route-map LOCALPREF-ISP1
+set local-preference 100 
+route-map LOCALPREF-ISP2
+set local-preference 200
+router bgp 65001
+neighbor 198.51.100.2 route-map LOCALPREF-ISP1 in
+neighbor 198.51.100.6 route-map LOCALPREF-ISP2 in
+
+this will make outbound traffic from this router to choose the higher local preference
+
+what happens to the traffic coming from the internet ?
+
+to make in bound traffic use the faster connection we can use AS-PATH to exaggerate the AS PATH
+route-map ASPATH
+set as-path prepend 65001 65001 65001
+
+lets apply this to 
+BGP bgp 65001
+neighbor 198.51.100.2 route-map ASPATH out
+end
+clear
+
+this will make the faster connection preferred/ discourage use of the slower as it has more AS PATHS 
+
+
+SHOW IP BGP 
+SHOW IP ROUTE 
+
+
+ 
