@@ -1,0 +1,23 @@
+COMMON COMMANDS
+SHOW IP BGP NEI
+SHOW IP BGP SUMMARY
+SHOW IP ROUTE 
+
+BASIC BGP COMMAND IN A ROUTER 
+ROUTER BGP 65000
+BGP 6500 ROUTER-ID 2.2.2.2
+NEIGHBOR 192.168.1.2 REMOTE-AS 65001
+NEIGHBOR 192.168.1.2 EBGP MULTIHOP 2  ## IF YOU WANT TO CONNECT TO A ROUTER NOT DIRECT NEIGHBOR SAY 2 HOPS AWAY
+NEIGHBOR 192.168.1.2 NEXT-HOP-SELF ### IF YOU WANT TO REACH A ROUTE I HAVE ADVERTISED USE ME AS THE NEXT HOPE... It is important to note than bgp does not change nexthop so you have to manually add it to the router connected to the advertised router.
+
+if bgp router learns from ibgp peer it will not advertise that information to the ibgp peer ===who ever told me told them--to avoid situations where this assumpttions means some routers do have routing information we can create peers, or use confederations within that AS OR USE ROUTE REFLECTORS.
+TO SET UP ROUTE-REFLECTOR
+
+we use this config on the acting router without having to change config on other routers...
+
+router bgp 65002
+neighbor 192.168.1.2 route-reflector-client
+neighbor 10.2.2.1 route-reflector-client
+
+
+thats how you set up dual homed bgp 
