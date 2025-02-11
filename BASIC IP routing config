@@ -1,0 +1,153 @@
+R1
+
+sysname R1
+
+int g0/0/0/1
+ip add 10.4.4.1 24
+
+int g0/0/0
+
+ip add 10.2.2.1 24
+
+int loop 0
+ip add 1.1.1.1 32
+
+int g0/0/2
+
+ip add 10.9.9.1 24
+
+R2
+
+sysname R2
+int g0/0/0/2
+
+ip add 10.10.1.2 24
+
+int g0/0/0
+
+ip add 10.3.3.2 24
+
+int loop 0
+ip add 2.2.2.2 32
+
+int g0/0/0/2
+
+ip add 10.2.2.2 24
+
+R3
+
+sysname R3
+
+int g0/0/0
+ip add 10.5.5.3 24
+
+int g0/0/1
+
+ip add 10.3.3.3 24
+
+int loop 0
+ip add 3.3.3.3 32
+
+int g0/0/2
+
+ip add 10.6.6.6.3 24
+
+
+R4
+sysname R4
+
+int g0/0/0
+ip add 10.4.4.4 24
+
+int g0/0/1
+
+ip add 10.5.5.4 24
+
+int loop 0
+ip add 4.4.4.4 32
+
+int g0/0/2
+
+ip add 10.7.7.4 24
+
+R5
+R6
+
+R6
+
+sysname R5
+int g0/0/0/0
+
+ip add 10.10.1.5 24
+
+int loop 0
+ip add 5.5.5.5 32
+
+int loop 1
+ip add 192.168.1.1 24
+
+int loop 2
+ip add 192.168.2.1 24
+
+int loop 3
+ip add 192.168.3.1 24
+
+
+sysname R6
+
+int g0/0/0
+ip add 10.6.6.6 24
+
+
+int loop 0
+ip add 6.6.6.6 32
+
+int g0/0/2
+
+ip add 10.6.6.6.3 24
+
+
+R9
+
+sysname R9
+
+int g0/0/0
+ip add 10.9.9.9 24
+
+int loop 0
+ip add 9.9.9.9 32
+int loop 1
+ip add 172.16.1.1 26
+int loop 2
+ip add 172.16.1.64 26
+int loop 3
+ip add 172.16.1.128 26
+
+
+
+r7
+sysname R7
+int g0/0/0
+ip add 10.7.7.7 24
+
+int loop 0
+ip add 7.7.7.7 32
+
+int g0/0/0
+ip add 10.8.8.7 24
+
+
+
+
+r8
+
+sysname R8
+int g0/0/0
+ip add 10.8.8.8 24
+
+int loop 0
+ip add 8.8.8.8 32
+
+
+
+
