@@ -1,0 +1,145 @@
+OSPF
+
+R1
+ospf 1 router-id 1.1.1.1
+area 0 
+
+network 1.1.1.1 0.0.0.0
+network 10.2.2.0 0.0.0.255
+network 10.4.4.0 0.0.0.255
+
+
+r2
+ospf 1 router-id 2.2.2.2
+area 0 
+
+network 2.2.2.2 0.0.0.0
+network 10.2.2.0 0.0.0.255
+network 10.3.3.0 0.0.0.255
+quit
+
+area 1
+network 10.10.1.0 0.0.0.255
+
+
+r3
+ospf 1 router-id 3.3.3.3
+area 0 
+
+network 3.3.3.3 0.0.0.0
+network 10.5.5.0 0.0.0.255
+network 10.3.3.0 0.0.0.255
+quit
+
+area 2
+network 10.6.6.0 0.0.0.255
+
+
+r4
+
+
+ospf 1 router-id 4.4.4.4
+area 0 
+
+network 4.4.4.4 0.0.0.0
+network 10.4.4.0 0.0.0.255
+network 10.5.5.0 0.0.0.255
+quit
+
+area 3
+network 10.7.7.0 0.0.0.255
+
+
+
+display ospf peer
+display ospf routing =  to show the ospf routing table 
+display ospf lsdb =  this will show lsa TYPES 1,2 3
+
+
+
+
+on router 1
+
+ip route-static 172.16.1.0 26 10.9.9.9
+
+ip route-static 172.16.1.64 26 10.9.9.9
+
+ip route-static 172.16.1.128 26 10.9.9.9
+
+
+display ip routing table 
+display ip routing=table pro static
+
+@@ to advertise this 
+ospf 
+import-route static 
+
+display ospf lsdb
+
+
+let examine the cost 
+display ip routing
+type 2 is the default and the cost is 1 
+if you change in r1 to 
+import-route static type 1
+
+to summarize external routes learned by r1
+asbr-summary 172.16.1.0 255.255.255.0
+
+to summarize routes on r5 we use r2
+ospf 
+area 1 
+abr-summary 192.168.0.0 255.255.252.0
+
+change int type
+display ospf int g0/0/0
+display ospf lsdb
+
+int g0/0/0
+ospf network-type p2p
+
+no tyle 2 lsas will be broadcasted
+@@ do the same on the r2 on the interface
+
+@@make area 1 stub ==== we have no type 4 and 5 replaced by default 
+ospf
+area 1 
+stub
+# there is no summary asbr.. a deafault route is generate sum-net 0.0.0.0 towards router 2
+, no r5 there are no external learnt route from ospf 
+
+@@to create totally stub
+no type 3,4 and 5 lsas and replaced it with a default  
+use this command
+ospf 
+area 1
+stub no-summary 
+
+
+@@to create no so stubby 
+same as stuuby but we can do redistribution 
+ospf
+area 3
+nssa
+
+
+@@@to make it totally nssa
+
+just ass nssa no-summary
+
+
+
+on r7
+ip route-static 8.8.8.8 32 10.8.8.8
+
+
+if you want devices on router 9 and 8
+we introduce static
+
+
+ip route-static 0.0.0.0 0.0.0.0 10.9.9.1
+ip route-static 0.0.0.0 0.0.0.0 10.8.8.7
+
+
+
+
