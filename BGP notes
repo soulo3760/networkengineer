@@ -1,0 +1,62 @@
+bgp
+ibgp - bgp peers in teh same AS
+ebgp - bgp peers in different AS
+
+
+update source l1 command = tells the device to use this loopback one as my source ip address 
+for this interface. it defines teh source ip when initiating the TCP connection. 
+it is important because it will be used by BGP to authenticate the incoming connection
+
+
+BGP MESSAGES
+open   		
+ update    ---==== only optimal and best routes are carried by update message to peers
+notification ====  report error and terminate peer relationship
+keep alive 
+route-fresh == IF ANY CHANGES OCCUR IN THE ROUTING DATABASES
+
+
+BGP  STATES
+THE NEIGHBOR TRANSITIONS ALL THE WAY TO ESTABLISHED 
+
+
+BGP can import routes using 
+network
+route-import ospf 
+
+SUMMARIZATION
+bgp 200 aggregated
+
+
+ADVERTISEMENT RULE
+ default IBGP behavior
+1. multihop sessions are allowed
+2. nexthop  remains unchanged 
+3. split horizon rule/ so we need to have full mesh between Ibgp peers
+4. do no append AS no in  AS_PATH
+
+NLRI CONDITIONS IN IBGP
+1. NEXT HOP MUST BE RESOLVABLE, 
+2. is my own AS within the AS_path , IBGP will drop the message IF A DEVICE FINDS ITS OWN AS, but it is not the same EBGP
+
+on the multihop issue, 
+in IBGP ttl is set to 225
+and ebgp ttl is set to 1 
+
+ default EBGP behavior
+1. Multihop-session are not allowed
+2. nexthop is changed 
+3. no split horizon
+4. AS n added in the AS_path
+ 
+
+on split horizon, all routes learned from EBGP peers can be advertised to all peers. 
+only in IBGP are route learned fro peers not advertised to peers... it is assumed peers have full mesh. 
+
+advertisement rules.
+
+1. only optimal and valid routers are advertised
+2. the routes obtained from EBGP are advertised from all BGP peers
+3. IBGP SPLIT HORIZON. the routes obtained from IBGP are not advertised to ibgp peers
+4. route synchronization... ibgp cannot advertise this route to ebgp peers unless the router learns from an igp LIKE ospf .. this prevents BGP routing blackholes...
+ 
