@@ -1,3 +1,23 @@
+BGP path attributes 
+well known mandatory - Origin,  AS_PATH, NEXT HOP
+well known discretionary - L0OCAL PREFRENCE AND ATOMIC AGREGATE
+
+Optional transitive (it can be advertised to other AS) === aggregator and community
+optional non-transitive (it cannot be advertised to other AS) === cluster-list and originator-id
+
+
+LOCAL PREFERENCE CAN BE USED TO DETERMINE HOW TRAFFIC EXITS
+MED CAN INFLUCNED HOW TRAFFIC ENTERS
+
+PREFEERED VALUE = HUAWEI SPECIFIC LIKE WEIGTH IS TO CISCO... TO DETERMINE BEST ROUTE TO DESTINATION
+
+ROUTE REFLECTORS
+It reduces the need for full mesh
+routes within the ibgp can be advertised to clients
+
+to achieve EQMP 8 attributes must be tthe same
+
+
 R1
 
 sysname R1
