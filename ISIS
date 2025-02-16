@@ -1,0 +1,321 @@
+PPSNP are for missing LSPS, CSNPs are for initial adjacency formation like Summarized lsdb of the router, ISIS HELLO are used once adjacency is established...  
+
+
+
+isis
+R1:
+sysname R1
+int loop0
+ ip add 1.1.1.1 32
+int g0/0/0
+ ip add 10.1.1.1 24
+int g0/0/1
+ ip add 10.2.2.1 24
+
+
+R2:
+sysname R2
+int loop0
+ ip add 2.2.2.2 32
+int g0/0/0
+ ip add 10.3.3.2 24
+int g0/0/1
+ ip add 10.1.1.2 24
+
+
+R3:
+sysname R3
+int loop0
+ ip add 3.3.3.3 32
+int g0/0/0
+ ip add 10.2.2.3 24
+int g0/0/1
+ ip add 10.4.4.3 24
+
+
+R4:
+sysname R4
+int loop0
+ ip add 4.4.4.4 32
+int g0/0/0
+ ip add 10.4.4.4 24
+int g0/0/1
+ ip add 10.3.3.4 24
+int g0/0/2
+ ip add 10.5.5.4 24
+
+
+
+
+R5:
+sysname R5
+int loop0
+ ip add 5.5.5.5 32
+int g0/0/0
+ ip add 10.5.5.5 24
+int g0/0/1
+ ip add 10.6.6.5 24
+
+ip route-static 6.6.6.6 32 10.6.6.6
+
+
+R6:
+sysname R6
+int loop0
+ ip add 6.6.6.6 32
+int g0/0/0
+ ip add 10.6.6.6 24
+
+ip route-static 0.0.0.0 0 10.6.6.5
+
+
+
+
+r1
+isis
+is-level level 1
+net 49.0001.0000.0000.0001.00
+cost-style wide
+q
+int loop0
+isis enable 1
+int g0/0/0
+isis enable 1
+int g0/0/1
+isis enable 1
+
+
+
+r2
+isis
+is-level level-1-2
+net 49.0001.0000.0000.0002.00
+cost-style wide
+q
+int loop0
+isis enable 1
+int g0/0/0
+isis enable 1
+int g0/0/1
+isis enable 1
+
+
+r3
+isis
+is-level level-1-2
+net 49.0001.0000.0000.0003.00
+cost-style wide
+q
+int loop0
+isis enable 1
+int g0/0/0
+isis enable 1
+int g0/0/1
+isis enable 1
+
+
+r4
+
+isis
+is-level level-2
+net 49.0002.0000.0000.0004.00
+cost-style wide
+q
+int loop0
+isis enable 1
+int g0/0/0
+isis enable 1
+int g0/0/1
+isis enable 1
+int g0/0/2
+isis enable 1
+
+r5
+isis
+is-level level-2
+net 49.0002.0000.0000.0005.00
+cost-style wide
+q
+int loop0
+isis enable 1
+int g0/0/0
+isis enable 1
+int g0/0/1
+
+
+dis isis peer
+dis isis lsdb
+dis isis route
+import-route static 
+dis ip routing-table
+
+
+redistribution
+import-route static 
+
+route leaking 
+
+lets leak the network connected to 5.5.5.5
+isis 
+ip ip-prefix leak permit 5.5.5.5 24 less-e 32
+import-route isis level-2 into level 1 filter-policy ip-prefix leak
+
+
+summarize
+192.168.1.192
+192.168.1.0
+192.168.1.64
+11
+01
+00
+
+
+dis current
+#
+sysname R2
+#
+aaa
+ authentication-scheme default
+ authorization-scheme default
+ accounting-scheme default
+ domain default
+ domain default_admin
+ local-user admin password cipher OOCM4m($F4ajUn1vMEIBNUw#
+ local-user admin service-type http
+#
+isis 1
+ cost-style wide
+ network-entity 49.0001.0000.0000.0002.00
+ import-route isis level-2 into level-1 filter-policy ip-prefix leak
+ summary 192.168.1.0 255.255.255.0 level-1-2
+#
+firewall zone Local
+ priority 16
+#
+interface Ethernet0/0/0
+#
+interface Ethernet0/0/1
+#
+interface Serial0/0/0
+ link-protocol ppp
+#
+interface Serial0/0/1
+ link-protocol ppp
+#
+interface Serial0/0/2
+ link-protocol ppp
+#
+interface Serial0/0/3
+ link-protocol ppp
+#
+interface GigabitEthernet0/0/0
+ ip address 10.3.3.2 255.255.255.0
+ isis enable 1
+#
+interface GigabitEthernet0/0/1
+ ip address 10.1.1.2 255.255.255.0
+ isis enable 1
+#
+interface GigabitEthernet0/0/2
+#
+interface GigabitEthernet0/0/3
+#
+wlan
+#
+interface NULL0
+#
+interface LoopBack0
+ ip address 2.2.2.2 255.255.255.255
+ isis enable 1
+#
+ip ip-prefix leak index 10 permit 5.5.5.0 24 greater-equal 24 less-equal 32
+#
+user-interface con 0
+user-interface vty 0 4
+user-interface vty 16 20
+#
+return
+
+
+
+r1
+
+dis curr
+#
+sysname R1
+#
+aaa
+ authentication-scheme default
+ authorization-scheme default
+ accounting-scheme default
+ domain default
+ domain default_admin
+ local-user admin password cipher OOCM4m($F4ajUn1vMEIBNUw#
+ local-user admin service-type http
+#
+isis 1
+ is-level level-1
+ cost-style wide
+ network-entity 49.0001.0000.0000.0001.00
+#
+firewall zone Local
+ priority 16
+#
+interface Ethernet0/0/0
+#
+interface Ethernet0/0/1
+#
+interface Serial0/0/0
+ link-protocol ppp
+#
+interface Serial0/0/1
+ link-protocol ppp
+#
+interface Serial0/0/2
+ link-protocol ppp
+#
+interface Serial0/0/3
+ link-protocol ppp
+#
+interface GigabitEthernet0/0/0
+ ip address 10.1.1.1 255.255.255.0
+ isis enable 1
+#
+interface GigabitEthernet0/0/1
+ ip address 10.2.2.1 255.255.255.0
+ isis enable 1
+#
+interface GigabitEthernet0/0/2
+#
+interface GigabitEthernet0/0/3
+#
+wlan
+#
+interface NULL0
+#
+interface LoopBack0
+ ip address 1.1.1.1 255.255.255.255
+ isis enable 1
+#
+interface LoopBack1
+ ip address 192.168.1.1 255.255.255.192
+ isis enable 1
+#
+interface LoopBack2
+ ip address 192.168.1.65 255.255.255.192
+ isis enable 1
+#
+interface LoopBack3
+ ip address 192.168.1.201 255.255.255.192
+ isis enable 1
+#
+user-interface con 0
+user-interface vty 0 4
+user-interface vty 16 20
+#
+return
+
+
+
+
+
