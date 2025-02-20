@@ -1,0 +1,95 @@
+R1:
+sy R1
+int g0/0/0
+ ip add 10.1.1.1 24
+int g0/0/1
+ ip add 10.2.2.1 24
+int loop0
+ ip add 1.1.1.1 32
+
+int loop 1
+ip add 192.168.1.1 24
+int loop 2
+ip add 192.168.2.1 24
+int loop 3
+ip add 192.168.3.1 24
+ip ip-prefix list index 10 permit 1.1.1.1 24 
+
+ip ip-prefix list index 10 permit 192.168.2.0 24 
+ip ip-prefix list index 20 permit 192.168.3.0 24 
+
+ip ip-prefix DIRECT index 10 permit 4.4.4.4 32
+
+import-route direct 
+
+ip ip-prefix DIRECT index 10 permit 1.1.1.1 32
+
+ospf 1 router-id 1.1.1.1
+ area 0 
+  network 10.1.1.0 0.0.0.255
+  network 10.2.2.0 0.0.0.255
+
+
+R4:
+sy R4
+int g0/0/0
+ ip add 10.4.4.4 24
+int g0/0/1
+ ip add 10.3.3.4 24
+int loop0
+ ip add 4.4.4.4 32
+
+ip ip-prefix DIRECT index 10 permit 4.4.4.4 32
+
+isis 1
+ is-level level-2
+ cost-style wide
+ network-entity 49.0001.0000.0000.0004.00
+ filter-policy ip-prefix DIRECT export
+ import-route direct
+isis 1
+ is-level level-2
+ cost-style wide
+ network-entity 49.0001.0000.0000.0004.00
+ isis enable 1
+
+
+
+creating tags
+sys
+ip ip-prefix ospftag permit 192.168.1.0  24
+ip ip-prefix ospftag permit 192.168.3.0  24 
+
+route-policy tag permit node 10
+if-match ip-prefix ospftag
+apply tag 200
+
+route-policy tag permit node 20
+
+
+isis
+import-route ospf 1 route-policy tag
+
+
+on r3
+route-policy tag deny node 10
+if-match tag 200
+q
+route-policy tag permit node 10
+
+
+[R3-isis-1]dis this
+#
+isis 1
+ is-level level-2
+ cost-style wide
+ network-entity 49.0001.0000.0000.0003.00
+ filter-policy route-policy tag import
+ import-route ospf 1
+#
+return
+[R3-isis-1]
+
+ospf 
+
+
