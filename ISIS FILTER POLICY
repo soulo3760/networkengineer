@@ -1,0 +1,42 @@
+R3:
+sy R3
+int g0/0/0
+ ip add 10.2.2.3 24
+int g0/0/1
+ ip add 10.4.4.3 24
+
+ospf 1 router-id 3.3.3.3
+ area 0
+  network 10.2.2.0 0.0.0.255
+
+isis 1
+ is-level level-2
+ cost-style wide
+ network-entity 49.0001.0000.0000.0003.00
+int g0/0/1
+ isis enable 1
+
+
+on r1
+
+create a prefix list 
+ip ip-prefix list index 10 permit 192.168.1.0 24 
+ip ip-prefix list index 20 permit 192.168.3.0 24 
+
+
+policy-route In permit node 10
+if-match ip ip-prefix list
+apply cost-type type-1
+
+ospf
+route-import direct policy-route In
+
+
+ip ip-prefix direct index 20 deny  172.16.1.0 24 
+
+on r4 isis
+isis
+[R4-isis-1]import	
+[R4-isis-1]filter 	
+[R4-isis-1]filter-policy ip	
+[R4-isis-1]filter-policy ip-prefix direct export
