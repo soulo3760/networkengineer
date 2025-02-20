@@ -28,7 +28,7 @@ WE WILL CHOOSE THE LINK CONNECTED TO G1/0/13 ON THE FAR END
 
 
  designated ports 
-- all links going to the root are designated ports
+- all links on the root are designated ports
 so for designated port on non root bridge
 we choose the end of port in the link,  closest to the root bridge in term of cost.
 then if we have atie we choose the bridge id to break a tie
