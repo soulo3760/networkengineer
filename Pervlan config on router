@@ -1,0 +1,26 @@
+##ROUTER SERVING TWO VLANS 10 AND 20 
+
+interface GigabitEthernet0/0/0
+#
+interface GigabitEthernet0/0/0.10
+ dot1q termination vid 10
+ ip address 192.168.10.1 255.255.255.0 
+ arp broadcast enable
+#
+interface GigabitEthernet0/0/0.20
+ dot1q termination vid 20
+ ip address 192.168.20.1 255.255.255.0 
+ arp broadcast enable
+#
+###### ON THE SWITCH 
+sysname S1
+#
+vlan batch 10 20
+interface GigabitEthernet0/0/1
+ port link-type access
+ port default vlan 10
+#
+interface GigabitEthernet0/0/2
+ port link-type access
+ port default vlan 20
+#
