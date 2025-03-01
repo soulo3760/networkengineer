@@ -1,0 +1,62 @@
+[R3]dis current-configuration 
+[V200R003C00]
+#
+ sysname R3
+#
+ snmp-agent local-engineid 800007DB03000000000000
+ snmp-agent 
+#
+ clock timezone China-Standard-Time minus 08:00:00
+#
+portal local-server load portalpage.zip
+#
+ drop illegal-mac alarm
+#
+ipv6 
+#
+ set cpu-usage threshold 80 restore 75
+#
+aaa 
+ authentication-scheme default
+ authorization-scheme default
+ accounting-scheme default
+ domain default 
+ domain default_admin 
+ local-user admin password cipher %$%$K8m.Nt84DZ}e#<0`8bmE3Uw}%$%$
+ local-user admin service-type http
+#
+ospfv3 1
+ router-id 3.3.3.3
+#
+firewall zone Local
+ priority 15
+#
+interface GigabitEthernet0/0/0
+ ipv6 enable 
+ ipv6 address 3002::1/64 
+ ospfv3 1 area 0.0.0.0
+#
+interface GigabitEthernet0/0/1
+ ip address 192.168.20.1 255.255.255.0 
+#
+interface GigabitEthernet0/0/2
+#
+interface NULL0
+#
+interface Tunnel0/0/1
+ ip address 10.10.10.2 255.255.255.0 
+ tunnel-protocol ipv4-ipv6
+ source 3002::1
+ destination 3001::1
+#
+ip route-static 192.168.10.0 255.255.255.0 Tunnel0/0/1
+#
+user-interface con 0
+ authentication-mode password
+user-interface vty 0 4
+user-interface vty 16 20
+#
+wlan ac
+#
+return
+[R3]
