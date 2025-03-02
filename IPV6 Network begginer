@@ -1,0 +1,11 @@
+2001:ODB8:CAFE:2AF3:124A:3292:1/64 - the network is 64 bits, host is 64 bits
+2001:ODB8:CAFE:3::1/96 - the network is 96 bits, host is 32 bits
+2001:ODB8:CAFE:3::1/128 - the network is 128 bits, SINGLE HOST  - NETWORK OF one
+
+the network portion of the global unicast address
+2001 = FIRST 3 BITS--./3 INDENTIFIES  IANA global prefix
+00A1 = NEXT 20 BITS /23 Regional registry === NORTH ANERICA, AFRICA ....
+2233 = NEXT 9 BITS /32 provider prefix - ASSIGNED TO ISP 
+0001 = NEXT 16 BITS /48 site prefix - ASSIGNED BY ISP uniquely indentify my company
+0001 = /64 SUBNET PREFIX - MY NETWORK 
+THE LAST 64 BITS = INENTIFIES INTERFACE ID OR HOST NETWORK = /64 MY DEVICE 
