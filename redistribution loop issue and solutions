@@ -1,0 +1,26 @@
+redistribution loop issue and solutions
+it is common for a route redistributed into routing protocol using the protocols default metric of infinity 00seed metric00.
+
+in complex topologies, looping conditions are likely to occur.
+1. Assign higher metrics when entering a AS
+	- to avoid being a desirable route when redistributing to an area 	which can cause suboptimal routes
+2. set lower administrative distance for the desired protocol to make it more 	believable... for instance chance AD of OSPF to 80, which is lower 	than 90 of EIGRP.
+3. Filter redistributed routes
+	ASBR and ABR boundaries, filter ip routing in the ospf table. to 	ensure specific routes don't get redistributed.
+4. tags. consider it as rubber stamps. 
+	if i don't want eigrp routes to be redistributed back by ospf into 	the AS, you can assign the EIGRP routes with a tag of 10. then deny 	tag 10 traffic from being redistributed back at the ospf to eigrp 	boundary. 
+route-map TAG10
+set tag 10 
+
+now lets create another route map to match traffic to be denied
+route-map DENYTAG10 deny 10 
+match tag 10
+exit 
+route-map DENYTAG10 permit 20
+
+router ospf 1
+ redistribute eigrp  route-map TAG10
+
+
+
+
