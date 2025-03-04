@@ -1,0 +1,18 @@
+policy based routing PBR
+MATCH - IP ADDRESS 
+	- RANGE OF PACKET LENGHTS
+SET - NEXT HOP IP ADDRESS
+	- DEFAULT NEXT HOP IP
+	-INTERFACE
+	- DEFAULT INTERFACE 
+first create an access list 
+access-list 100 permit ip host 192.0.2.2 host 192.51.100.3 
+route-map CLIENT-TO-SERVER 
+match ip address 100
+set next-hop 203.0.113.1 
+exit
+
+apply to the router making the forwarding decision
+int g0/1
+ip policy route-map CLIENT-TO-SERVER
+
