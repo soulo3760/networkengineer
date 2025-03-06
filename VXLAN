@@ -1,0 +1,49 @@
+VXLAN
+VIRTUAL EXTENSIBLE LANS
+-span l3 boundary VLAN
+-12 BIT VLAN filed = 4000 vlans
+VXLAN = 16 MILLION vxlans
+VXLAN network indentifier (VNI)
+ 24 bit VNI field
+
+underlay network = physically connected network
+using this physical network we can create a logical network, when leaf switches can reach any other leaf switch through the spin switches... using VIM (virtual ethernet module) to communicated over the overlay network...
+each vem has atleast one IP address assigned to a special interface called VTEP... Virtual tunnel endpoint.VTEP can pass traffic among themselves. see this explanation
+VTEP can connect to another VTEP to form a tunnel 
+
+https://www.youtube.com/watch?v=SnnNrXtIc1c 
+
+What about multicast, broadcast... we use BUM... 
+
+BUM = BROADCAST, UNKNOWN UNICAST AND MULTICAST
+
+we can have the VTEP join a multicast group
+we can have multiple VNi belonging to same multicast group
+take this scenario 
+server 1 wants to communicate to server 2
+server 1
+MAC : AAAA.AAAA.AAAA
+IP 10.1.1.100
+VLAN 10 
+
+server 2
+mac: BBBB.BBBB.BBBB
+IP: 10.1.1.200
+VLAN 10
+
+leaf swi is connected to leaf switch 2 via a spine SW2
+WE WILL ASSIGN Leaf switch SW1 VTEP 192.168.1.11
+WE WILL ASSIGN Leaf switch SW1 VTEP 192.168.1.33
+then 
+##########
+for server one to connect to server 2, it sends a arp broadcast as it does not know mac address to 10.1.1.200 to reach sw2
+so the switch will learn the following:
+	- i just learnt that AAAA.AAAA.AAAA MAC address is attached to interface E1/11 which is a member of vlan 10 . vlan 10 is mapped to VNI 100010 
+
+Leaf SWI reaches serve 1 the ARP broadcast, whch is treated as part of BUM traffic.
+FOR BUM traffic, SW1 will send it to the multicast group < 239.1.1.10 > of which Spine SW2 and leaf SW3 is a part of... and leaf SW3 will flood it out to its ports... 
+once  leaf sw3 gets this traffic in the multicast group 239.1.1.10, IT WILL FLOAD IT OUT TO OTHER PORTS, and Server 2 will respond with its mac address...
+SO sw3 WILL learn that 10.1.1.200 with  mac: BBBB.BBBB.BBBB  lives in the port E1/1
+so SW3 will respond to the other VTEP with hEY IF YOU WANT TO REACH server 2 come to me giving its ip address 192.168.1.33
+AND THIS INFORMATION IS SENT THROUGH SPINE SW2, and leaf SW1 which records the vtep ADDRESS OF THE LEAF SW2.
+so LEAF SW1, forms a VXLAN tunnel with leaf SW2
