@@ -1,0 +1,87 @@
+multicast routing
+IGMP 
+We will have PCs that want to receive video from a video server join a group
+class D multicast 224.0.0.0 - 239.255.255.255
+ however there are reserved addresses	
+	link-local address - 224.0.0.0 - 224.0.0.255 - that address is usable one link
+			for example ospf 224.0.0.10(EIGRP), ospf (224.0.0.5 n 224.0.0.6)
+	globally scoped address - 224.0.1.0 - 238.255.255.255
+source specific multicast address - 232.0.0.0 - 232.255.255.255 
+	GLOP Addresses = 233.0.0.0 - 233.255.255.255 ( globally unique based on AS )
+	limited scope address = 239.0.0.0 - 239.255.255.255 (PRIVATE NETWORK FOR MULTICAST)
+
+GLOP Addresses = 233.0.0.0 - 233.255.255.255 ( globally unique based on AS )
+lets assume AS =  65000
+in this case our multicast address space: 233.253.232.0/24
+the second and third octet were determined by the AS number  = 253 - 232
+65000 = FD-E8 
+FD = 253
+E8 - 232
+
+
+FOR IPV6
+FF AS THE FIRST two hexadecimal digits
+in the scope 4 bits:
+FF02::1 - All nodes in the link local scope
+FF01::2 - ALL ROUTERS in the link local scope
+
+
+CONSTRUCTING A MULTICAST MAC ADDRESS
+it is automatically constructed from ipv4 multicast address
+	step 1
+convert the last three octets to binary
+	if multicast address is 244.1.10.10
+0000.0001.0000.1010.0000.1010
+	step 2
+change the leftmost bit t 0, if it not already 0
+0000.0001.0000.1010.0000.1010
+convert each nibble into hex
+01.0a.0a
+	step 3
+prepend 01-00-5e
+01-00-5e.01.0a.0a
+
+
+
+ANOTHER EXAMPLE ...224.129.10.10
+	step 1
+convert the last three octets to binary
+	if multicast address is 224.129.10.10
+224-128 = 96-64-32=0
+129-128 = 1
+0000.1001.0000.1010.0000.1010
+	step 2
+change the leftmost bit t 0, if it not already 0,,, we have changed the bit to 0 it was 1
+0000.0001.0000.1010.0000.1010
+convert each nibble into hex
+01.0a.0a
+	step 3
+prepend 01-00-5e
+01-00-5e.01.0a.0a
+it is possible to have overlapping multicast MAC address 
+
+IGMP protocol
+
+if there are multiple PCs that want to receive Multicast traffic, they will talk to their next hop routers to hey please send me multicast traffic for this multicast group. the way the way the pc makes this request is using IGMP protocol.
+
+if the router is receiving traffic that group it will know to respond using the interface that the pc is connect.
+
+IGMP snooping. it knows the port to forward the multicast traffic to a specific receiver and not other ports. preventing broadcast....
+
+if the router is not receiving the traffic from that group, it will have to GRAFT itself on the (MDT) Multicast Distribution Tree. 
+
+IGMP reports - 60 seconds timer
+IGMPV2 - The receiver can send a leave message
+IGMPV3 - The receiver can send icmpv3, it specifies the group and also specific source 			address. source is always unicast, destination is multicast...
+
+REVERSE PATH FORWARDING CHECK
+
+Reverse Path forwarding  check
+ this prevents duplication OF multicast traffic, according to my unicast routing table, which ingress interface... if i(receiver) is getting multicast packets from a sender from more than one interface, it will only accept traffic from the interface in which interface (g0/1) wuld use to send traffic back to the sender. 
+
+source distribution tree  - PIM - DM = flood and prune receivers, then if new receiver comes it grafts... this flooding and prune behavior evry 3 minutes is a disadvantage ... despite new models having a state-refresh feature.
+
+shared distribution tree  - PIM-SM -  rendezvous point ...source sends to RP ... if new receiver wants to join to sends IGMP report to RP. (*, G)
+ONCE THE RECEIVER SOURCE knows the source of the sender. it will send (S,G) JOIN TO THE SOURCE, AND PRUNE THE RP. to establish optimal path. Shortest path tree switchover. 
+
+
