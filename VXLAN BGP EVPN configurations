@@ -1,0 +1,47 @@
+VXLAN BGP EVPN configurations
+	-l3 routing over vxlan 
+	- anycast vpc
+
+BGP L2VPN EVPN
+use BGP as a mechanism to map and ip address to vxlan tunnel end point.
+
+maps vlans to vxlan network indentifiers (VNIs/VNIDs)
+
+advertise information into BGP
+
+mac to L2 vni TO VTEP(vxlan tunnel end point) Mapping
+ip to l3 vni to VTEP mapping 
+import mac address into CAM table for bridging 
+route traffic through SVI to remote semgnets
+
+
+so we have server 1 to SW1, and we will send its mac address information using BGP L3VPN EVPN to the other endpoint SW2. now SW2 will know the end point to use to reach the server 1 through SW1.
+Basically, its uploading the arp cache into BGP to avoid broadcasting the information over the data plane.
+
+
+STEPS 
+1. MAP vlan to vxlan 
+- vn-segment under vlan config mode 
+2. create Network Virtualization Edge (NVE) interface
+- specify tunnel interface  nve1
+3. Specify VTEP source
+-source interface loopback0
+4. Specify VNI membership 
+- member vni (vnid)
+5. specify multicast group for BUM replication
+- mcast-group (group)
+6. specify BGP as control panel protocol
+- host-reachability protocol bgp 
+7. Establish BGP EVPN peerings
+ - address-family l2vpn evpn
+ - extended communities required 
+-- we have the network set up as leaf-spin-leaf ====something on route reflections
+the spins are in data plane, so we host bgp route reflectors. (interfabric reachability)
+8. generate BGP advertisements
+- evpn  
+	- vni (vnid) l2
+	- rd auto 
+	- route-target import auto
+	- route-target export auto
+
+
