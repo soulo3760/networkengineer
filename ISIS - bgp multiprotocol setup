@@ -1,0 +1,543 @@
+peer groups  vs normal conf
+
+1.1.1.1
+1:1/128
+
+community attributes (internet, no advertise, no export, community,  vs userdefined attributes.
+
+int loop1 2 3 - helps implement community attributes
+
+
+ipv6 # global configuration
+ipv6 enable  ## at the interface level
+
+ipv6
+int loop0
+ipv6 enable
+ipv6 address 1::1/64
+int g0/0/1
+ipv6 enable 
+ipv6 address 2001:6::1/64
+
+int g0/0/0
+ipv6 enable 
+ipv6 address 2001:1::1/64
+
+
+router 2
+ipv6
+int loop 0
+ipv6 enable 
+ipv6 address 2::2/64
+int g0/0/1
+ipv6 enable 
+ipv6 address 2001:1::2/64
+int g0/0/0
+ipv6 enable 
+ipv6 address 2001:2::2/64
+
+
+router 3
+
+ipv6
+int loop 0
+ipv6 enable 
+ipv6 address 3::3/64
+int g0/0/1
+ipv6 enable 
+ipv6 address 2001:2::3/64
+int g0/0/0
+ipv6 enable 
+ipv6 address 2001:4::3/64
+int g0/0/2
+ipv6 enable 
+ipv6 address 2001:3::3/64
+
+
+router 4
+
+ipv6
+int loop 0
+ipv6 enable 
+ipv6 address 4::4/64
+int g0/0/1
+ipv6 enable 
+ipv6 address 2001:3::4/64
+int g0/0/0
+ipv6 enable 
+ipv6 address 2001:5::4/64
+
+
+router 5
+
+ipv6
+int loop 0
+ipv6 enable 
+ipv6 address 5::5/64
+int g0/0/1
+ipv6 enable 
+ipv6 address 2001:5::5/64
+int g0/0/0
+ipv6 enable 
+ipv6 address 2001:7::5/64
+
+
+## define network entity
+
+on router 1
+isis 1
+network-entity 49.0001.0000.0000.0001.00
+is-level level-2
+cost-style wide
+ipv6 enable topology ipv6 ## both ipv4 and ipv6 			each has it own spt 
+
+## enable ipv6 on interfaces
+int n loop0
+
+int loop 0
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/0
+isis enable 1
+isis ipv6 enable 1
+
+
+router 2
+isis 1
+network-entity 49.0001.0000.0000.0002.00
+is-level level-2
+cost-style wide
+ipv6 enable topology ipv6 
+
+
+int loop 0
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/0
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/1
+isis enable 1
+isis ipv6 enable 1
+
+
+router 3
+isis 1
+network-entity 49.0001.0000.0000.0003.00
+is-level level-2
+cost-style wide
+ipv6 enable topology ipv6 
+
+
+int loop 0
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/0
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/1
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/2
+isis enable 1
+isis ipv6 enable 1
+
+
+
+router 4
+isis 1
+network-entity 49.0001.0000.0000.0004.00
+is-level level-2
+cost-style wide
+ipv6 enable topology ipv6 
+
+
+int loop 0
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/0
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/1
+isis enable 1
+isis ipv6 enable 1
+
+
+
+router 5
+isis 1
+network-entity 49.0001.0000.0000.0005.00
+is-level level-2
+cost-style wide
+ipv6 enable topology ipv6 
+
+
+int loop 0
+isis enable 1
+isis ipv6 enable 1
+
+int g0/0/1
+isis enable 1
+isis ipv6 enable 1
+
+
+HAVING SET UP THE ISIS PROTOCOLS TO LEARN LOOPBACKS WITHIN THE NETWORK SO THAT NOW ONCE WE GO TO THE IBGP TO FORM THE SESSIONS....
+
+WE MOVE TO BGP, (normal vs peer groups)
+bgp 100
+bgp router-id 1.1.1.1
+peer 2.2.2.2 as 100 
+peer 2.2.2.2 connect-int loop0
+peer 2::2 as 100
+peer 2::2 connect-int loop0
+peer 4.4.4.4 as 100 
+peer 2.2.2.2 connect-int loop0
+peer 4::4 as 100
+peer 4::4 connect-int loop0
+
+### ipv6 address family enable, by default ipv4 is enabled
+
+ipv6-fa u
+
+peer 2::2 enable
+peer 4::4 enable
+
+
+## we did not establish a full mesh with peer 3, because we are enabling router reflectors. we only need full mesh to resolve slit horizon... router 2 and 4 are level 2 route reflectors.. router 2 to reflect with everyone needs to have full mesh
+
+bgp 100
+ router-id 2.2.2.2
+peer 1.1.1.1 as 100 
+peer 1.1.1.1 connect-int loop0
+peer 1::1 as 100 
+peer 1::1 as connect-int loop0 
+peer 3.3.3.3 as 100
+peer 3.3.3.3 connect-int loop0
+peer 3::3 as 100 
+peer 1::1 connect-int loop0
+
+peer 4.4.4.4 as 100
+peer 4.4.4.4 connect-int loop0
+peer 4::4 as 100 
+peer 4::4 connect-int loop0
+
+
+
+ipv6-family u
+peer 4::4 enable
+peer 5::5 enable
+peer 3::3 enable
+peer 1::1 enable
+
+
+
+on router 3 we only have 2 peer r2 and r3
+
+bgp 100
+router-id 3.3.3.3
+group ibgpeer internal # internal means we are creating a ibgp group, an external mark would mean ebgp## you dont need to configure other routers to be part of the peergroup
+
+
+
+bgp 100
+router-id 3.3.3.3
+group ibgpeer internal
+peer ibgp as 100
+peer 2.2.2.2 group ibgpeer
+peer 4.4.4.4 group ibgpeer
+peer ibgpeer connect-int loop0
+
+since we cannot add ipv6 into the peer group we activate them in their family addresss.. 
+
+ipv6-family u
+peer 2::2 enable 
+peer 4::4 activate
+
+
+
+bgp 100
+router-id 3.3.3.3
+peer 2::2 as 100
+peer 2::2 connect-int loop0
+peer 4::4 as 100
+peer 4::4 connect-int loop0
+
+ipv6-family 
+peer 2::2 enable
+peer 4::4 enable
+
+
+
+connect r3 to external switch s8
+peer 10.3.3.8 as 103
+peer 2001:3::8 as 103
+ipv6-family u
+peer 2001:3::8 enable
+
+
+### whether we use peer group, the configuration you do one device does not affect our router 4 configurations.
+
+on router 4
+bgp 100
+router-id 4.4.4.4
+group ibg4peer internal
+peer 2.2.2.2 group ibg4peer
+peer 3.3.3.3 group ibg4peer
+peer 5.5.5.5 group ibg4peer
+peer 1.1.1.1 group ibg4peer
+peer ibg4peer connect-int loop0
+
+peer 1::1 as 100
+peer 2::2 as 100
+peer 3::3 as 100
+peer 5::5 as 100
+ipv6-family u
+peer 1::1 enable
+peer 2::2 enable 
+peer 5::5 enable
+peer 3::3 enable
+peer ipv6 enable  
+
+
+### to check configurations use
+dis this
+
+
+
+on router 5
+bgp 100
+router-id 5.5.5.5
+peer 10.7.7.7 as 102
+peer 2001:7::7 as 102 ### physical ip do not 			need connect interface 
+bgp 100
+router-id 5.5.5.5
+peer 10.7.7.7 as 102
+peer 2001:7::7 as 102
+
+
+group ibg5peer internal
+peer 4.4.4.4 group ibg5peer
+peer 2.2.2.2 group ibg5peer
+peer 2::2 as group ibg5peer
+peer 4::4 as group ibg5peer
+peer ibg5peer connect-int loop0
+
+ipv6-family u
+peer 2::2 enable
+peer 4::4 enable
+peer 2001:7::7 enable
+
+
+
+
+#### ony r4 and r5 bgp connection has an issue.. wll trouble shoot later
+
+
+
+
+
+
+--ADVERTISING NETWORKS AFTER THE SETUP--
+
+ipv6 
+INT G0/0/5
+Portswitch 
+int vlan 1 
+ipv6 enable 
+ip add 10.7.7.7 24
+ipv6 add 2001:7::7/64
+
+bgp 
+bgp 102
+router-id 7.7.7.7
+peer 10.7.7.5 as 100
+peer 2001:7::5 as 100
+
+ipv6-family 
+peer 2001:7::5 enable
+
+
+
+ADVERTISE ITS NETWORKS 
+
+######
+ipv4-f u
+network 8.8.8.8 32
+network 192.168.8.1 32
+dis bgp routing table 
+
+
+INT VLAN1
+INT LOOP0
+IPV6 ADD 8::8 128
+ipv6-f u
+network 8::8 128
+
+
+
+on router 2
+    Network            NextHop        MED        LocPrf    PrefVal Path/Ogn
+
+   i  8.8.8.8/32         10.3.3.8        0          100        0      103i
+   i  192.168.8.1/32     10.3.3.8        0          100        0      103i
+
+
+this is not the best path, because the next hop is not resolvable... only r3 can resolve the path so other routers do not consider this as best path since they cannot resolve. 
+
+we therefore we need to make router 3, self hop
+if you used peer groups
+peer ibgpeer next-hop-local
+if you need to manually define the peer
+peer.2:2 next-hop-local
+
+
+on r1 the table is empty
+- router 2 learnt the network from another ibgp
+	so it could not share the information 	with router 1
+this is split horizon issue
+we need to make router 2 a reflector of r1
+and r4 to be a reflector of r5
+on r2
+bgp 100
+ipv4-f-u
+peer 1.1.1.1 reflect client
+or 
+peer group_name reflect-client
+
+on r4
+bgp 100
+ipv4-f-u
+peer 5.5.5.5 reflect-client
+
+
+to advertise networks on s6
+ipv4-family u
+network 6.6.6.6 32
+net 192.168.6.1 32
+q
+ipv6-family u
+network 6::6 128
+q
+
+these advertised networks should be present in the r1 router reflector r2
+but on router 2, the learnt paths are not the best path, because the best path is not resolvable.
+therefore we need to go back to r1 and make it nexthop local
+
+
+cluster id - used in route reflectors 
+
+
+in bgp, to prevent router reflectors duplicating the, we can set the  reflector cluster-id 2.2.2.2 on router 4
+
+
+COMMUNITY ATRIBUTES 
+
+int loop 1
+net 192.168.1.1 32
+net 192.168.2.1 32
+net 192.168.3.1 32
+
+int loop 1
+ip add 192.168.1.1 32
+int loop 2
+ip add 192.168.2.1 32
+
+int loop 3
+ip add 192.168.3.1 32
+
+
+before YOU ADVERTISE THE COMMUNITY ATRIBUTES, YOU MUST ENABLE THE PEERS TO SEND AND RECEIVE COMMUNITIES
+this is done under BGP 100
+under address family
+ peer 2.2.2.2 advertise-community
+
+  peer 2.2.2.2 next-hop-local
+  peer 2.2.2.2 advertise-community
+  peer 4.4.4.4 enable
+  peer 10.6.6.6 enable
+  peer 10.6.6.6 advertise-community
+
+Community attributes are on peer to peer basis 
+peer ibgpeer advertise-community
+
+internet-  advertised to everyone
+no-export - advertise within the ibgp so its not available on nonlocal areas
+no-advertise means - - not advertised to any peer
+
+go to s8
+bgp 103
+ipv4-family uni
+peer 10.3.3.3 advertise-community
+
+@@ now lets apply the community attributes 
+we need to create 
+ip ip-prefix list internet permit 192.168.1.1 32 less-equal 32
+ip ip-prefix list no-advertise permit 192.168.2.1 32 less-equal 32
+
+ip ip-prefix list no-export permit 192.168.3.1 32 less-equal 32
+
+
+route-policy community permit node 10
+if match ip-prefix internet 
+apply community internet additive (if existing community attributes, the new statemtns will be added).
+
+route-policy community permit node 20
+if match ip-prefix no-advertise 
+apply community no advertise
+
+route-policy community permit node 30
+if match ip-prefix no-export 
+apply community no-export
+
+route-policy community permit node 40
+
+
+@@@@lets apply these route policies 
+
+on r1
+peer 2.2.2.2 route-policy community export 
+...
+we can check if they are applied on r2
+dis ip routing table 192.168.1.1 32
+dis ip routing table 192.168.2.1 32
+dis ip routing table 192.168.3.1 32
+
+
+USER defined
+ip ip-prefix USER permit 8.8.8.8 32 less-equal 32
+route-policy user-com permit node 10
+if match ip-prefix USER
+apply community 103:1
+route-policy user-com permit node 20 ## aan empty policy to permit everything else
+
+ipv4-f u
+peer 10.3.3.3 route-policy user-com export 
+
+
+## NOW we have a community tag 
+community<103:1>
+using the community tag we can ddeny or filter the network, when we dont want one or more router to learn this network
+
+
+community- filter 1 permit 103:1
+route-policy user deny node 10
+if match community filter 1
+route-policy user permit node 20
+
+ipv4-family u 
+peer 10.6.6.1 route-policy user import
+
+
+dis bgp routing route 
+
+
+
+
