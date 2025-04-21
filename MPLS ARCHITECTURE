@@ -1,0 +1,81 @@
+MPLS
+VRF VPN LAB
+In a isp backbone connecting various networks or clients HQs and branches. 
+provider edge 1, 2... n
+
+MPLS HELPS Direct packet forwarding without IP lookup
+
+MPLS header is added between l2 and l3 packet encapsulation.
+we process MPLS header before l3, which means we can be able to forward the packets by simply examining the MPLS packet
+
+MPLS is only enabled on PROVIDER NETWORK SO AS TO FORWARD PACKETS BASED ON MPLS
+
+MPLS Means it can handle multiprotocols. ipv4 and ipv6
+
+mpls uses labels to indicate source and destination
+
+lsp - label switch path... is the mpls path used to move packet from source to destination.
+
+
+
+TRADITIONAL IP ROUTING AND SWITCHING
+
+Is when we use hop by hop forwarding mode as all routers and search it routing table for a route based on longest match rule, repeats the process and re-encapsulating can affect performance...and affects good end to end QOS guarantee as they are connectionless....
+
+MPLS IS located between data link and network layer in TCP/IP protocol.
+MPLS data is forwarded based on the label field in the MPLS header. 
+
+We will consider MPLS on IP NETWORKS only 
+only mpls header is added to the ip packet header. 
+
+lsr -Label switching Router
+a routing device such as router or switch that runs MPLS. An LSR that resides at the edge of an MPLS domain and connects to a non MPLS network is called a label edge router (LER).
+LSR that resides inside an MPLS domain is called core LSR
+location based classification
+LER ... CORELSR .. LSR
+
+data processing mode classification
+INGRESS - pushes MPLS header into IP packet to generate MPLS packet. 
+TRANSIT - pushes/swaps or pops out a label in a received MPLS packet and then forwards the packet inside the MPLS domain.
+EGRESS - pops MPLS to restore IP packet. 
+
+
+Forwarding Equivalence Class. FEC 
+are forwarded the same way by LSRs.
+They can be classified based on ddestination ip addresss, network masks, DSCP values etc
+MPLS labels match FECs.
+FECs are what make MPLS faster and more flexible than traditional IP routing. By grouping packets into FECs and forwarding them based on labels (not IP addresses), MPLS reduces processing overhead and enables advanced features like Traffic Engineering, QoS guarantees, and VPNs.
+
+LSP
+a path through which a labeled packet traverses an MPLS domain to reach a destination. the packets of the same FEC usually traverse the MPLS domain through same LSP
+
+mpls labels
+The label field itself is 20 bits, part of a 32-bit MPLS header.
+A mpls labeled packet contain one or more labels
+layer2 frame header, label header, ip header, payload
+the length of mpls header is 32 bits, but the label is 20 bits, s (1) indicates its last label if 0 it is followed by other label headers, IF ITS 1 its forwarded to ip network, if 0, it is MPLS SWITCHED WITHIN THE DOMAIN.. ttl is 8 bits, EX- cos
+
+
+a single LSR neds to establish a lable forwarding table, uses labels to identify FEC and bind label processing and forwarding behaviors to the FECs.
+
+MPLS architecture 
+consists of control plane and forwarding plane
+control plane
+- LIB -  
+- ip routing protocols
+-RIB 
+-ldp - lABEL DISTRIBUTION protocol (LABEL INFORMATION EXCHANGE)
+-FIB
+-LFIB
+
+To forward traffic in an MPLS network, routers must assign labels to FECs (Forwarding Equivalence Classes) and distribute them across the network. 
+LDP (Label Distribution Protocol) – Uses IGP (OSPF/IS-IS) to distribute labels.
+
+ldp IS THE CONTROL protocol for MPLS
+Routers exchange labels via LDP.
+
+LDP is used in VPN scenarios
+
+STATIC LSP AND Dynamic LSP
+
+In an MPLS network, when a packet travels from an ingress Label Edge Router (LER) to an egress LER, labels may be swapped at each Label Switching Router (LSR) along the path.
