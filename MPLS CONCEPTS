@@ -1,0 +1,9 @@
+MPLS Concept	Real-World Analogy	              Role in the Network
+Packet	      Package	Data being transported
+Label	        Barcode on the box	               Fast identifier for forwarding
+Tunnel ID	    Delivery Route Number	              Identifies the LSP path
+FTN	          Dispatch desk decision	           FEC → Label stack + Tunnel ID (Ingress LER)
+ILM	          Label scanner at sorting hubs	     Incoming label → NHLFE
+NHLFE	        Sorting/forwarding instructions	   What to do with the packet (next hop, label action)
+LSR	          Sorting hub	Does                   label switching
+Egress LER	  Last-mile delivery office          	Pops label and forwards to IP destination
