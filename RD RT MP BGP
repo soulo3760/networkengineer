@@ -1,0 +1,84 @@
+MP-BGP 
+
+RD - RD only makes routes unique.  Makes VPNv4 routes unique, Used When converting IPv4 → VPNv4
+
+RT - Controls route sharing, USED When exporting/importing routes, RT = "This route belongs to VPN-X."
+
+Purpose: Controls which VPN sites receive which routes (like a "VPN membership tag").
+
+How it works:
+
+Export RT: Attached when a PE sends a route to MP-BGP.
+
+Import RT: Used by remote PEs to decide whether to accept the route into a VRF.
+
+
+
+
+VPN-A (Bank A)
+RD: 65000:100
+
+Export RT: 65000:100
+
+Import RT: 65000:100
+
+Routes: 65000:100:10.1.1.0/24
+
+VPN-B (Bank B)
+RD: 65000:200
+
+Export RT: 65000:200
+
+Import RT: 65000:200
+
+Routes: 65000:200:10.1.1.0/24
+
+Result:
+
+Even if both banks use 10.1.1.0/24, their routes won’t mix (thanks to RD).
+
+Only Bank A sites get Bank A routes (thanks to RT).
+
+
+
+MP BGP
+
+VPNV4 route is advertised by pe1 to pe2 through MPIBGP update message 
+
+the message carries MP reach NLRI and RT attributes
+
+inner label - VPN label is distributed by MP-BGP of each PE to a VPN route 
+Inner Label (VPN): 1024 (identifies the destination VRF on PE2).
+
+
+each PE determines the VPN to which the data belongs according to the inner label.
+
+Outer label- is distributed by the LDP to the next hop of the VPN route.
+the first to be examined is the outer label, the inner label will be used to determining vrf to forward to the destination PE2. 
+Outer Label (Transport): Assigned by LDP/RSVP-TE for the path to PE2 (e.g., 2001).
+
+
+
+after receiving VPN4 routes, the egress PE performs route-leaking and tunnel recursion to select routes 
+
+The last P Router pops the outer label (PHP = Penultimate Hop Popping).
+
+PE2 receives the packet with only the inner VPN label (1024).
+
+VPN Label Lookup: Matches 1024 to the correct VRF.
+
+IP Forwarding: Checks the VRF’s routing table for 10.2.2.2 and sends to CE2.
+
+
+
+Step-by-Step Labels:
+
+CE1 → PE1: IP Packet (10.1.1.1 → 10.2.2.2).
+
+PE1: Encapsulates with labels [Outer=2001, Inner=1024].
+
+P1: Swaps outer label 2001 → 2002 (inner label 1024 unchanged).
+
+P2: Pops outer label (PHP), sends [Inner=1024] to PE2.
+
+PE2: Matches 1024 to VRF-A, forwards to CE2 as plain IP.
