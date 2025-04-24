@@ -1,0 +1,71 @@
+mpls vpn set-up procees:
+1. igp  
+2. mpls ldp  
+3. vrf 
+4. mpbgp
+
+
+mp bgp mpls vpn
+ldp 
+the ldp helps because the networks between the r1 and r3 but they can still forward the packets to the edge routers
+
+WHEN THE DEVICE LOOKS AT THE FIB, IF THE TUNNEL ID IS ZERO, USE NORMAL IP FORWARDING DECISIONS. 
+IF THE TUNNEL ID IS NONE ZERO, THE PACKET MUST BE FORWARDED BASED ON MPLS
+SO IT WILL GO TO LSP TO FIND THE AN ENTRY THAT MATCHES THE TUNNEL ID
+COMMANDS
+dis fib
+dis mpls ldp 
+
+after configuring ospf within the isp network 
+and enabling mpls on the interfaces involved 
+we configure the vrf
+ip vpn-instance custa
+ipv4-fam 
+route-distinguisher 1:1
+#route-target 
+vpn-target 1:1 both 
+
+# we need to bid vpn to the interface... we are assigning the customer their vrf
+int g0/0/0
+ip binding vpn-instance custa 
+ip add 192.168.1.1 24
+
+and repeat the same for custa 
+and then on r3
+
+vpninstance create ospf for cust a
+
+
+so now we configure the cust a int loop0 and int g0/0 and advertise in ospf 0
+
+
+ON R1
+BGP 100
+PEER 3.3.3.3 AS-NUMBER 100
+PEER 3.3.3.3 CONNECT-INT LOOP0
+IPV4 FAMILY VPNV4
+PEER 3.3.3.3 ENABLE 
+
+#dis bgp vpnv4 all peer
+dis bgp peer
+dis bgp routing table 
+
+
+
+we need to import from cust a into bgp
+bgp 100
+ipv4-f vpn-instance custa
+import-route ospf 1
+
+
+now we can actually see this route in r3,
+dis ip routing table vpn-instance custa
+dis bgp vpnv4 all routing-table 
+
+now since we have the route on the r3 vrf
+we need to use ospf to import the bgp on cust a
+
+we can see that the networks on customer site a from r1 are now introduced into customer site in r3
+
+
+
